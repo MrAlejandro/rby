@@ -22,7 +22,7 @@ if can_exist
 
   is_isosceles = side1 == side2 || side1 == hypotenuse || side2 == hypotenuse
   puts "The triangle is isosceles" if is_isosceles
-  
+
   is_equilateral = side1 == side2 == hypotenuse
   puts "The triangle is isosceles" if is_equilateral
 else
