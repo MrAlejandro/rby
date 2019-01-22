@@ -1,11 +1,9 @@
 vowels = ["a", "e", "i", "o", "u", "y"]
 
-index = 1
 vowel_letters = {}
 
-("a".."z").each do |letter|
-  vowel_letters[letter] = index if vowels.include?(letter)
-  index += 1
+("a".."z").each_with_index do |letter, index|
+  vowel_letters[letter] = index + 1 if vowels.include?(letter)
 end
 
 puts vowel_letters

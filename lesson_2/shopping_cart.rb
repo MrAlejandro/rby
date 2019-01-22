@@ -21,7 +21,6 @@ loop do
           amount: amount,
       }
     end
-    cart[name][:subtotal] = cart[name][:price] * cart[name][:amount]
   end
 end
 
@@ -29,8 +28,9 @@ puts cart
 
 order_total = 0
 cart.each do |name, item|
-  puts "Product '#{name}' subtotal is: #{item[:subtotal]}"
-  order_total += item[:subtotal]
+  subtotal = item[:price] * item[:amount]
+  puts "Product '#{name}' subtotal is: #{subtotal}"
+  order_total += subtotal
 end
 
 puts "Order total: #{order_total.round(2)}"
