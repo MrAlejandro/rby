@@ -8,7 +8,8 @@ puts "Enter year: "
 year = gets.chomp.to_i
 
 is_leap_year = year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)
-days_in_month = [31, is_leap_year ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+days_in_month[1] = 29 if is_leap_year
 
 if month < 1 || month > 12
   puts "Such a month does not exist"
