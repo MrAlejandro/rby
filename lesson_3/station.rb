@@ -6,15 +6,25 @@ class Station
     @trains = []
   end
 
-  def add_train(train)
+  def handle_arrival(train)
     @trains << train
+    self
   end
 
-  def trains_by_type(type)
+  def get_trains_by_type(type)
+    @trains.select { |train| train.is_of_type?(type) }
   end
 
-  def depart(train)
+  def get_trains_quantity_by_type(type)
+    get_trains_by_type(type).size
+  end
+
+  def handle_departure(train)
     @trains.delete(train)
+  end
+
+  def to_str
+    @name
   end
 end
 
@@ -29,10 +39,15 @@ class Route
 
   def add_station(station)
     @way_stations << station
+    self
   end
 
-  def stations
-    get_all_stations.each(&puts)
+  def remove_station(station)
+    @way_stations.delete(station)
+  end
+
+  def print_stations
+    get_all_stations.each { |station| puts station.to_str }
   end
 
   def get_station_after(station)
@@ -69,30 +84,35 @@ class Train
   end
 
   def break
-    self.speed = 0
+    @speed = 0
   end
 
   def hook_car
-    @cars_number += 1 if speed == 0
+    @cars_number += 1 if @speed == 0
   end
 
   def unhook_car
-    @cars_number += 1 if speed == 0 && cars_number > 0
+    @cars_number -= 1 if @speed == 0 && cars_number > 0
   end
 
-  def set_route(route)
+  def route=(route)
     @route = route
     @current_station = route.initial_station
+    route.initial_station.handle_arrival(self)
+  end
+
+  def is_of_type?(type)
+    @type == type
   end
 
   def go_forward
     next_station = get_next_station
-    @current_station = next_station if next_station
+    go_to_station(next_station) if next_station
   end
 
   def go_back
     prev_station = get_prev_station
-    @current_station = prev_station if prev_station
+    go_to_station(prev_station) if prev_station
   end
 
   def get_next_station
@@ -103,4 +123,10 @@ class Train
     @route.get_station_before(@current_station)
   end
 
+  private
+  def go_to_station(station)
+    @current_station.handle_departure(self)
+    station.handle_arrival(self)
+    @current_station = station
+  end
 end
