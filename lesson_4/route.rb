@@ -37,4 +37,3 @@ class Route
     @stations.map{ |station| station.to_str }.join(' - ')
   end
 end
-

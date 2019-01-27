@@ -1,12 +1,12 @@
 class Train
-  attr_reader :cars
+  attr_reader :wagons
   attr_reader :current_station
   attr_accessor :speed
 
   def initialize(number, type)
     @number = number
     @type = type
-    @cars = []
+    @wagons = []
     @speed = 0
     @current_station = nil
   end
@@ -19,16 +19,17 @@ class Train
     @type == type
   end
 
-  def cars_number
-    @cars.size
+  def wagon_number
+    @wagons.size
   end
 
-  def hook_car(car)
-    @cars << car if @speed == 0 && !@cars.include?(car)
+  def hook_wagon(wagon)
+    not_able_to_hook = @speed > 0 || @wagons.include?(wagon) || !wagon.is_of_type?(@type)
+    @wagons << wagon unless not_able_to_hook
   end
 
-  def unhook_car(car)
-    @cars.delete(car) if @speed == 0
+  def unhook_wagon(wagon)
+    @wagons.delete(wagon) if @speed == 0
   end
 
   def route=(route)
