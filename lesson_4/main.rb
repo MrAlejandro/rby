@@ -16,8 +16,32 @@ class RailWayControlPanel
     @stations = []
     @trains = []
     @routes = []
+    init_commands
   end
-  
+
+  def start
+    loop do
+      puts "Select action:"
+      @commands.each_with_index {|action, index| puts "#{index}: #{action[:title]}"}
+
+      action = gets.to_i
+      result = @commands[action] ? @commands[action][:handler].call : OPERATION_CODE_ERROR
+
+      case result
+      when OPERATION_CODE_EXIT
+        puts "Good bye!"
+        break
+      when OPERATION_CODE_ERROR
+        puts "Error occurred"
+      else
+        puts "Success"
+      end
+    end
+  end
+
+  private
+
+  # следующие методы не очень полезны вне контекста класса
   def stop
     OPERATION_CODE_EXIT
   end
@@ -155,7 +179,6 @@ class RailWayControlPanel
     station.trains.each {|train| puts train.to_str}
   end
 
-  private
   # это внутрееные методы, которые не должны быть доступны во внешнем интерфейсе
   def prompt_select_train(message, trains = @trains)
     puts message
@@ -177,40 +200,27 @@ class RailWayControlPanel
     route_index = gets.to_i
     routes[route_index]
   end
+
+  def init_commands
+    @commands = [
+        {title: "Exit", handler: self.method(:stop)},
+        {title: "Create station", handler: self.method(:create_station)},
+        {title: "Create train", handler: self.method(:create_train)},
+        {title: "Create route", handler: self.method(:create_route)},
+        {title: "Add station to route", handler: self.method(:add_station_to_route)},
+        {title: "Remove station from route", handler: self.method(:remove_station_from_route)},
+        {title: "Assign route to train", handler: self.method(:assign_route_to_train)},
+        {title: "Hook wagon", handler: self.method(:hook_wagon)},
+        {title: "Unhook wagon", handler: self.method(:unhook_wagon)},
+        {title: "Move train forward", handler: self.method(:move_train_forward)},
+        {title: "Move train back", handler: self.method(:move_train_back)},
+        {title: "Print stations list", handler: self.method(:print_stations_list)},
+        {title: "Print trains on station", handler: self.method(:print_trains_on_station)},
+    ]
+  end
 end
 
 rwcp = RailWayControlPanel.new
+rwcp.start
 
-commands = [
-    {title: "Exit", handler: rwcp.method(:stop)},
-    {title: "Create station", handler: rwcp.method(:create_station)},
-    {title: "Create train", handler: rwcp.method(:create_train)},
-    {title: "Create route", handler: rwcp.method(:create_route)},
-    {title: "Add station to route", handler: rwcp.method(:add_station_to_route)},
-    {title: "Remove station from route", handler: rwcp.method(:remove_station_from_route)},
-    {title: "Assign route to train", handler: rwcp.method(:assign_route_to_train)},
-    {title: "Hook wagon", handler: rwcp.method(:hook_wagon)},
-    {title: "Unhook wagon", handler: rwcp.method(:unhook_wagon)},
-    {title: "Move train forward", handler: rwcp.method(:move_train_forward)},
-    {title: "Move train back", handler: rwcp.method(:move_train_back)},
-    {title: "Print stations list", handler: rwcp.method(:print_stations_list)},
-    {title: "Print trains on station", handler: rwcp.method(:print_trains_on_station)},
-]
 
-loop do
-  puts "Select action:"
-  commands.each_with_index {|action, index| puts "#{index}: #{action[:title]}"}
-
-  action = gets.to_i
-  result = commands[action] ? commands[action][:handler].call : OPERATION_CODE_ERROR
-
-  case result
-  when RailWayControlPanel::OPERATION_CODE_EXIT
-    puts "Good bye!"
-    break
-  when RailWayControlPanel::OPERATION_CODE_ERROR
-    puts "Error occurred"
-  else
-    puts "Success"
-  end
-end
