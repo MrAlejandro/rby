@@ -11,9 +11,15 @@ class Route
     register_instance
   end
 
+  def valid?
+    validate
+    true
+  rescue
+    false
+  end
+
   def add_station(station)
-    already_exists = @initial_station == station || @terminal_station == station || @stations.include?(station)
-    @stations.insert(-2, station) unless already_exists
+    @stations.insert(-2, station) if station.is_a?(Station) && @stations.none? {|st| st == station}
     self
   end
 
@@ -46,7 +52,6 @@ class Route
   def validate
     raise "Initial station cannot be equal to terminal station." if @initial_station == @terminal_station
     raise "Initial number of stations in the route." if @stations.size < 2
-    number_of_wrong_stations = @stations.select {|station| station == nil || !station.is_a?(Station) }.size
-    raise "Item of a wrong type in the stations list." if number_of_wrong_stations > 0
+    raise "Item of a wrong type in the stations list." unless @stations.all? {|st| st.is_a?(Station)}
   end
 end

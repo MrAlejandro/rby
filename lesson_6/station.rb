@@ -10,7 +10,7 @@ class Station
   end
 
   def initialize(name)
-    @name = name
+    @name = name.to_s
     @trains = []
     validate
     @@stations << self
@@ -52,6 +52,6 @@ class Station
   protected
 
   def validate
-    raise "Station name cannot be empty." if @name == nil || @name.empty?
+    raise "Station name cannot be empty." if @name.empty?
   end
 end
