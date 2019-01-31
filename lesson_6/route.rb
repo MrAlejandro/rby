@@ -38,12 +38,15 @@ class Route
   end
 
   def to_str
-    @stations.map{ |station| station.to_str }.join(' - ')
+    @stations.map {|station| station.to_str}.join(' - ')
   end
 
   protected
 
   def validate
     raise "Initial station cannot be equal to terminal station." if @initial_station == @terminal_station
+    raise "Initial number of stations in the route." if @stations.size < 2
+    number_of_wrong_stations = @stations.select {|station| station == nil || !station.is_a?(Station) }.size
+    raise "Item of a wrong type in the stations list." if number_of_wrong_stations > 0
   end
 end

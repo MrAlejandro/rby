@@ -52,6 +52,6 @@ class Station
   protected
 
   def validate
-    raise "Station name cannot be empty." if @name.empty?
+    raise "Station name cannot be empty." if @name == nil || @name.empty?
   end
 end
