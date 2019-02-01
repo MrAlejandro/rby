@@ -1,4 +1,5 @@
 class CargoWagon < Wagon
+  attr_reader :reserved_volume
   def initialize(volume)
     @volume = volume.to_f
     @reserved_volume = 0
@@ -11,12 +12,12 @@ class CargoWagon < Wagon
     @reserved_volume += volume if can_reserve
   end
 
-  def reserved_volume
-    @reserved_volume
-  end
-
   def free_volume
     @volume - @reserved_volume
+  end
+
+  def to_str
+    "Cargo wagon. Volume: #{@volume}, reserved: #{@reserved_volume.round(2)}, free: #{free_volume.round(2)}."
   end
 
   protected

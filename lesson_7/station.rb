@@ -45,8 +45,12 @@ class Station
     @trains.size > 0
   end
 
-  def each_train
-    @trains.each {|tr| yield tr}
+  def each_train(&block)
+    if block.arity == 2
+      @trains.each_with_index {|index, train| yield index, train}
+    else
+      @trains.each {|train| yield train}
+    end
   end
 
   def to_str

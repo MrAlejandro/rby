@@ -40,12 +40,12 @@ class Train
     @type == type
   end
 
-  def wagon_number
+  def wagons_number
     @wagons.size
   end
 
   def hook_wagon(wagon)
-    can_hook = @speed == 0 || @wagons.none?(wagon) || wagon.is_a?(Wagon) || wagon.is_of_type?(@type)
+    can_hook = @speed == 0 && @wagons.none? {|wg| wg == wagon} && wagon.is_a?(Wagon) && wagon.is_of_type?(@type)
     @wagons << wagon if can_hook
   end
 
@@ -77,12 +77,16 @@ class Train
     @route.get_station_before(@current_station)
   end
 
-  def each_wagon
-    @wagons.each {|wagon| yield wagon}
+  def each_wagon(&block)
+    if block.arity == 2
+      @wagons.each_with_index {|wagon, index| yield index, wagon}
+    else
+      @wagons.each {|wagon| yield wagon}
+    end
   end
 
   def to_str
-    "number: '#{@number}'"
+    "number: '#{@number}', number of wagons: #{wagons_number}"
   end
 
   private

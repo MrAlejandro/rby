@@ -1,4 +1,6 @@
 class PassengerWagon < Wagon
+  attr_reader :reserved_seats
+
   def initialize(seats)
     @seats = seats.to_i
     @reserved_seats = 0
@@ -9,12 +11,12 @@ class PassengerWagon < Wagon
     @reserved_seats += 1 if @reserved_seats < @seats
   end
 
-  def reserved_seats_number
-    @reserved_seats
+  def free_seats
+    @seats - @reserved_seats
   end
 
-  def free_seats_number
-    @seats - @reserved_seats
+  def to_str
+    "Passenger wagon. Seats: #{@seats}, reserved: #{@reserved_seats}, free: #{free_seats}."
   end
 
   protected

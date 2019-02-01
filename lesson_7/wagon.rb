@@ -17,6 +17,10 @@ class Wagon
     @type == type
   end
 
+  def to_str
+    @type
+  end
+
   protected
 
   def validate

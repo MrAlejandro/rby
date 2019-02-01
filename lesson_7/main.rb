@@ -14,7 +14,7 @@ class RailwayWrongInputError < RuntimeError; end
 class RailwayTerminateError < RuntimeError; end
 
 class RailWayControlPanel
-  TRAIN_TYPES = [:Cargo, :Passenger]
+  TRAIN_TYPES = [:cargo, :passenger]
 
   def initialize
     @stations = []
@@ -65,34 +65,50 @@ class RailWayControlPanel
     rt1.add_station(st2)
     @routes = [rt1]
 
+    @wagons = [
+        reserve_seats(33, PassengerWagon.new(55)),
+        reserve_seats(33, PassengerWagon.new(33)),
+        reserve_seats(55, PassengerWagon.new(77)),
+        reserve_seats(11, PassengerWagon.new(33)),
+        reserve_seats(22, PassengerWagon.new(33)),
+        reserve_seats(22, PassengerWagon.new(55)),
+        reserve_volumes([10, 30, 40], CargoWagon.new(100)),
+        reserve_volumes([20, 30, 40], CargoWagon.new(100)),
+        reserve_volumes([30, 30, 40], CargoWagon.new(100)),
+        reserve_volumes([30, 40], CargoWagon.new(100)),
+        reserve_volumes([20, 40], CargoWagon.new(100)),
+        reserve_volumes([20, 30], CargoWagon.new(100)),
+        reserve_volumes([70, 30], CargoWagon.new(100)),
+    ]
+
     pt1 = PassengerTrain.new("aaa-aa")
-    pt1.hook_wagon(reserve_seats(33, PassengerWagon.new(55)))
-    pt1.hook_wagon(reserve_seats(33, PassengerWagon.new(33)))
-    pt1.hook_wagon(reserve_seats(55, PassengerWagon.new(77)))
+    pt1.hook_wagon(@wagons[0])
+    pt1.hook_wagon(@wagons[1])
+    pt1.hook_wagon(@wagons[2])
 
     pt2 = PassengerTrain.new("bbb-bb")
-    pt2.hook_wagon(reserve_seats(11, PassengerWagon.new(33)))
+    pt2.hook_wagon(@wagons[3])
 
     pt3 = PassengerTrain.new("ccc-dd")
-    pt3.hook_wagon(reserve_seats(22, PassengerWagon.new(33)))
-    pt3.hook_wagon(reserve_seats(22, PassengerWagon.new(55)))
+    pt3.hook_wagon(@wagons[4])
+    pt3.hook_wagon(@wagons[5])
 
     pt1.route = rt1
     pt2.route = rt1
     pt3.route = rt1
 
     ct1 = CargoTrain.new("eee-ee")
-    ct1.hook_wagon(reserve_volume([10, 30, 40], CargoWagon.new(100)))
-    ct1.hook_wagon(reserve_volume([20, 30, 40], CargoWagon.new(100)))
-    ct1.hook_wagon(reserve_volume([30, 30, 40], CargoWagon.new(100)))
+    ct1.hook_wagon(@wagons[6])
+    ct1.hook_wagon(@wagons[7])
+    ct1.hook_wagon(@wagons[8])
 
     ct2 = CargoTrain.new("fff-ff")
-    ct2.hook_wagon(reserve_volume([30, 40], CargoWagon.new(100)))
-    ct2.hook_wagon(reserve_volume([20, 40], CargoWagon.new(100)))
+    ct2.hook_wagon(@wagons[9])
+    ct2.hook_wagon(@wagons[10])
 
     ct3 = CargoTrain.new("ggg-gg")
-    ct3.hook_wagon(reserve_volume([20, 30], CargoWagon.new(100)))
-    ct1.hook_wagon(reserve_volume([70, 30], CargoWagon.new(100)))
+    ct3.hook_wagon(@wagons[11])
+    ct1.hook_wagon(@wagons[12])
 
     ct1.route = rt1
     ct2.route = rt1
@@ -110,51 +126,68 @@ class RailWayControlPanel
   end
 
   def create_train
-    puts "Select type:"
-    TRAIN_TYPES.each_with_index {|type, index| puts "#{index} - #{type}"}
-    type = gets.to_i
+    type = prompt_select_train_type("Select type: ")
 
     puts "Enter train number: "
     number = gets.chomp
 
     case type
-    when 0
+    when :passenger
       @trains << PassengerTrain.new(number)
       result = "New passenger train with number '#{number}' has been created"
-    when 1
+    when :cargo
       @trains << CargoTrain.new(number)
       result = "New cargo train with number '#{number}' has been created"
     else
-      raise RailwayWrongInputError, "You have selected non existing type."
+      result = "Error occurred."
     end
 
     result
   end
 
   def create_wagon
-    puts "Select type:"
-    TRAIN_TYPES.each_with_index {|type, index| puts "#{index} - #{type}"}
-    type = gets.to_i
+    type = prompt_select_train_type("Select type: ")
+    puts type
 
     case type
-    when 0
+    when :passenger
       puts "Enter number of seats: "
       seats_number = gets.to_i
-      @wagons << PassengerWagon(seats_number)
-    when 1
+      @wagons << PassengerWagon.new(seats_number)
+      result = "New passenger wagon has been created."
+    when :cargo
       puts "Enter wagon volume: "
       volume = gets.to_f
-      @wagons << CargoWagon(volume)
+      @wagons << CargoWagon.new(volume)
+      result = "New cargo wagon has been created."
     else
-      raise RailwayWrongInputError, "You have selected non existing type."
+      result = "Error occurred."
     end
+
+    result
+  end
+
+  def reserve_seat
+    passenger_wagons = @wagons.select {|wagon| wagon.is_of_type?(:passenger) }
+    wagon = prompt_select_wagon("Select wagon", passenger_wagons)
+    wagon.reserve_seat
+    "Success."
+  end
+
+  def reserve_volume
+    cargo_wagons = @wagons.select {|wagon| wagon.is_of_type?(:cargo) }
+    wagon = prompt_select_wagon("Select wagon", cargo_wagons)
+    puts "Enter volume amount: "
+    volume = gets.to_f
+    wagon.reserve_volume(volume)
+    "Success."
   end
 
   def hook_wagon
     train = prompt_select_train("Select train: ")
-
-    train.hook_wagon(train.is_of_type?(:cargo) ? CargoWagon.new : PassengerWagon.new)
-    "The wagon has been hooked to the train. Number of cars: #{train.wagon_number}"
+    wagon = prompt_select_wagon("Select wagon: ")
+    train.hook_wagon(wagon)
+    "The wagon has been hooked to the train. Number of wagons: #{train.wagons_number}"
   end
 
   def unhook_wagon
@@ -168,7 +201,7 @@ class RailWayControlPanel
     raise RailwayWrongInputError, "You have selected non existent wagon." unless wagon
 
     train.unhook_wagon(wagon)
-    "The wagon has been unhooked from the train. Number of wagons: #{train.wagon_number}"
+    "The wagon has been unhooked from the train. Number of wagons: #{train.wagons_number}"
   end
 
   def create_route
@@ -221,9 +254,20 @@ class RailWayControlPanel
     "Success"
   end
 
-  def print_trains_on_station
-    station = prompt_select_station("Select station: ")
-    station.trains.each {|train| puts train.to_str}
+  def print_trains_on_station(station = nil)
+    station = prompt_select_station("Select station: ") if station == nil
+    station.each_train do |train|
+      puts "Train: #{train.to_str}"
+      train.each_wagon {|number, wagon| puts "\t#{number}: #{wagon.to_str}"}
+    end
+    "Success"
+  end
+
+  def print_stations_trains
+    @stations.each do |station|
+      puts "Station #{station.to_str}"
+      print_trains_on_station(station)
+    end
     "Success"
   end
 
@@ -238,6 +282,18 @@ class RailWayControlPanel
 
     raise RailwayWrongInputError, "You have selected non existent train." unless train
     train
+  end
+
+  def prompt_select_wagon(message, wagons = @wagons)
+    raise RailwayNotInitializedError, "You have not created any wagons yet." if wagons.size.zero?
+
+    puts message
+    wagons.each_with_index {|wagon, index| puts "#{index}: #{wagon.to_str}"}
+    wagon_index = gets.to_i
+    wagon = wagons[wagon_index]
+
+    raise RailwayWrongInputError, "You have selected non existent wagon." unless wagon
+    wagon
   end
 
   def prompt_select_station(message, stations = @stations)
@@ -271,24 +327,36 @@ class RailWayControlPanel
     @commands[command_index]
   end
 
+  def prompt_select_train_type(message, types = TRAIN_TYPES)
+    puts message
+    types.each_with_index {|type, index| puts "#{index} - #{type}"}
+    type_index = gets.to_i
+    type = types[type_index]
+    raise RailwayWrongInputError, "You have selected non existing type." unless type
+    type
+  end
+
   def init_commands
     @commands = [
         {title: "Exit", handler: self.method(:stop)},
         {title: "Fill demo data", handler: self.method(:seed)},
         {title: "Create station", handler: self.method(:create_station)},
-        {title: "Create train", handler: self.method(:create_train)},
         {title: "Create route", handler: self.method(:create_route)},
-        {title: "Create wagon", handler: self.method(:create_wagon)},
         {title: "Add station to route", handler: self.method(:add_station_to_route)},
         {title: "Remove station from route", handler: self.method(:remove_station_from_route)},
         {title: "Assign route to train", handler: self.method(:assign_route_to_train)},
+        {title: "Create train", handler: self.method(:create_train)},
         {title: "Hook wagon", handler: self.method(:hook_wagon)},
         {title: "Unhook wagon", handler: self.method(:unhook_wagon)},
+        {title: "Create wagon", handler: self.method(:create_wagon)},
+        {title: "Reserve seat", handler: self.method(:reserve_seat)},
+        {title: "Reserve volume", handler: self.method(:reserve_volume)},
         {title: "Move train forward", handler: self.method(:move_train_forward)},
         {title: "Move train back", handler: self.method(:move_train_back)},
         {title: "Print stations list", handler: self.method(:print_stations_list)},
         {title: "Print trains on station", handler: self.method(:print_trains_on_station)},
-    ]
+        {title: "Print stations trains", handler: self.method(:print_stations_trains)},
+       ]
   end
 
   def reserve_seats(n, wagon)
@@ -299,7 +367,7 @@ class RailWayControlPanel
     wagon
   end
 
-  def reserve_volume(volumes, wagon)
+  def reserve_volumes(volumes, wagon)
     volumes.each {|volume| wagon.reserve_volume(volume)}
     wagon
   end
