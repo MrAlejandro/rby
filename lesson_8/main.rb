@@ -133,15 +133,13 @@ class RailWayControlPanel
     case type
     when :passenger
       @trains << PassengerTrain.new(number)
-      result = "New passenger train with number '#{number}' has been created"
+      "New passenger train with number '#{number}' has been created"
     when :cargo
       @trains << CargoTrain.new(number)
-      result = "New cargo train with number '#{number}' has been created"
+      "New cargo train with number '#{number}' has been created"
     else
-      result = 'Error occurred.'
+      'Error occurred.'
     end
-
-    result
   end
 
   def create_wagon
@@ -153,17 +151,15 @@ class RailWayControlPanel
       puts 'Enter number of seats: '
       seats_number = gets.to_i
       @wagons << PassengerWagon.new(seats_number)
-      result = 'New passenger wagon has been created.'
+      'New passenger wagon has been created.'
     when :cargo
       puts 'Enter wagon volume: '
       volume = gets.to_f
       @wagons << CargoWagon.new(volume)
-      result = 'New cargo wagon has been created.'
+      'New cargo wagon has been created.'
     else
-      result = 'Error occurred.'
+      'Error occurred.'
     end
-
-    result
   end
 
   def reserve_seat
@@ -340,7 +336,8 @@ class RailWayControlPanel
     route
   end
 
-  def prompt_select_action(_message, commands = @commands)
+  def prompt_select_action(message, commands = @commands)
+    puts message
     commands.each_with_index do |action, index|
       puts "#{index}: #{action[:title]}"
     end
