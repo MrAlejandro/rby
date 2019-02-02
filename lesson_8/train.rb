@@ -5,8 +5,8 @@ class Train
   include Manufacturer
   include InstanceCounter
 
-  TYPES = [:cargo, :passenger]
-  NUMBER_FORMAT = /^[\w\d]{3}-?[\w\d]{2}$/
+  TYPES = %i[cargo passenger].freeze
+  NUMBER_FORMAT = /^[\w\d]{3}-?[\w\d]{2}$/.freeze
 
   @@trains = {}
 
@@ -28,7 +28,7 @@ class Train
   def valid?
     validate
     true
-  rescue
+  rescue StandardError
     false
   end
 
@@ -45,7 +45,7 @@ class Train
   end
 
   def hook_wagon(wagon)
-    can_hook = @speed == 0 && @wagons.none? {|wg| wg == wagon} && wagon.is_a?(Wagon) && wagon.is_of_type?(@type)
+    can_hook = @speed == 0 && @wagons.none? { |wg| wg == wagon } && wagon.is_a?(Wagon) && wagon.is_of_type?(@type)
     @wagons << wagon if can_hook
   end
 
@@ -79,9 +79,9 @@ class Train
 
   def each_wagon(&block)
     if block.arity == 2
-      @wagons.each_with_index {|wagon, index| yield index, wagon}
+      @wagons.each_with_index { |wagon, index| yield index, wagon }
     else
-      @wagons.each {|wagon| yield wagon}
+      @wagons.each { |wagon| yield wagon }
     end
   end
 
@@ -90,6 +90,7 @@ class Train
   end
 
   private
+
   # это низкоуровневый метод, который знает некоторые делаи реализации
   # которые не должен быть доступет вызывающему коду
   def go_to_station(station)
@@ -99,8 +100,8 @@ class Train
   end
 
   def validate
-    raise "Invalid train number. Desired format xxx[-]xx (where x is any letter or number)" if @number !~ NUMBER_FORMAT
-    raise "Invalid train type provided. Allowed types: #{TYPES.join(", ")}." unless TYPES.include?(@type)
-    raise "Speed cannot be negative." if @speed.negative?
+    raise 'Invalid train number. Desired format xxx[-]xx (where x is any letter or number)' if @number !~ NUMBER_FORMAT
+    raise "Invalid train type provided. Allowed types: #{TYPES.join(', ')}." unless TYPES.include?(@type)
+    raise 'Speed cannot be negative.' if @speed.negative?
   end
 end

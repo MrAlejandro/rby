@@ -22,7 +22,8 @@ class PassengerWagon < Wagon
   protected
 
   def validate
-    raise "Number of seats must be greater than zero." if @seats.zero?
+    raise 'Number of seats must be greater than zero.' if @seats.zero?
+
     super()
   end
 end

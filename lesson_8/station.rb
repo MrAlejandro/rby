@@ -20,7 +20,7 @@ class Station
   def valid?
     validate
     true
-  rescue
+  rescue StandardError
     false
   end
 
@@ -42,14 +42,14 @@ class Station
   end
 
   def has_trains?
-    @trains.size > 0
+    !@trains.empty?
   end
 
   def each_train(&block)
     if block.arity == 2
-      @trains.each_with_index {|index, train| yield index, train}
+      @trains.each_with_index { |index, train| yield index, train }
     else
-      @trains.each {|train| yield train}
+      @trains.each { |train| yield train }
     end
   end
 
@@ -60,6 +60,6 @@ class Station
   protected
 
   def validate
-    raise "Station name cannot be empty." if @name.empty?
+    raise 'Station name cannot be empty.' if @name.empty?
   end
 end

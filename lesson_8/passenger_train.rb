@@ -4,6 +4,6 @@ class PassengerTrain < Train
   end
 
   def to_str
-    super << ", type: Passenger"
+    super << ', type: Passenger'
   end
 end

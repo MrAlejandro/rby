@@ -23,7 +23,8 @@ class CargoWagon < Wagon
   protected
 
   def validate
-    raise "The wagon volume must be greater than zero." unless @volume.positive?
+    raise 'The wagon volume must be greater than zero.' unless @volume.positive?
+
     super()
   end
 end

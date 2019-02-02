@@ -1,5 +1,5 @@
 class Wagon
-  TYPES = [:cargo, :passenger]
+  TYPES = %i[cargo passenger].freeze
 
   def initialize(type)
     @type = type
@@ -9,7 +9,7 @@ class Wagon
   def valid?
     validate
     true
-  rescue
+  rescue StandardError
     false
   end
 
@@ -24,6 +24,6 @@ class Wagon
   protected
 
   def validate
-    raise "Invalid wagon type provided. Allowed types: #{TYPES.join(", ")}." unless TYPES.include?(@type)
+    raise "Invalid wagon type provided. Allowed types: #{TYPES.join(', ')}." unless TYPES.include?(@type)
   end
 end

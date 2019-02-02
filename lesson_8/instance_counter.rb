@@ -12,7 +12,7 @@ module InstanceCounter
     private
 
     def register_instance
-      @instances = self.instances + 1
+      @instances = instances + 1
     end
   end
 
