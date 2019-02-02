@@ -1,9 +1,9 @@
 class Station
-  attr_reader :trains
-
   include InstanceCounter
 
   @@stations = []
+
+  attr_reader :trains
 
   def self.stations
     @@stations
@@ -30,7 +30,7 @@ class Station
   end
 
   def get_trains_by_type(type)
-    @trains.select { |train| train.is_of_type?(type) }
+    @trains.select { |train| train.of_type?(type) }
   end
 
   def get_trains_quantity_by_type(type)
@@ -41,7 +41,7 @@ class Station
     @trains.delete(train)
   end
 
-  def has_trains?
+  def trains?
     !@trains.empty?
   end
 

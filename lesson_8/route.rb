@@ -1,7 +1,7 @@
 class Route
-  attr_reader :initial_station, :stations
-
   include InstanceCounter
+
+  attr_reader :initial_station, :stations
 
   def initialize(initial_station, terminal_station)
     @initial_station = initial_station
@@ -19,14 +19,15 @@ class Route
   end
 
   def add_station(station)
-    @stations.insert(-2, station) if station.is_a?(Station) && @stations.none? { |st| st == station }
+    can_add = station.is_a?(Station) && @stations.none? { |st| st == station }
+    @stations.insert(-2, station) if can_add
     self
   end
 
   def remove_station(station)
-    is_edge_station = station == @initial_station || station == @terminal_station
-    can_remove = !is_edge_station && !station.has_trains?
-    @stations.delete(station) if can_remove
+    is_edge_station = [@initial_station, @terminal_station].include?(station)
+    cannot_remove = is_edge_station && station.trains?
+    @stations.delete(station) unless cannot_remove
   end
 
   def print_stations
@@ -35,7 +36,7 @@ class Route
 
   def get_station_after(station)
     station_index = @stations.index(station)
-    station_index ? @stations[station_index + 1] : nil
+    @stations[station_index + 1] || nil
   end
 
   def get_station_before(station)
@@ -50,8 +51,11 @@ class Route
   protected
 
   def validate
-    raise 'Initial station cannot be equal to terminal station.' if @initial_station == @terminal_station
+    nowhere_route = @initial_station == @terminal_station
+    raise 'Initial and terminal station cannot be equal.' if nowhere_route
     raise 'Initial number of stations in the route.' if @stations.size < 2
-    raise 'Item of a wrong type in the stations list.' unless @stations.all? { |st| st.is_a?(Station) }
+
+    all_stations_valid = @stations.all? { |st| st.is_a?(Station) }
+    raise 'Item of a wrong type in the stations list.' unless all_stations_valid
   end
 end

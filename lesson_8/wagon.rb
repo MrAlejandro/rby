@@ -13,7 +13,7 @@ class Wagon
     false
   end
 
-  def is_of_type?(type)
+  def of_type?(type)
     @type == type
   end
 
@@ -24,6 +24,9 @@ class Wagon
   protected
 
   def validate
-    raise "Invalid wagon type provided. Allowed types: #{TYPES.join(', ')}." unless TYPES.include?(@type)
+    unless TYPES.include?(@type)
+      raise 'Invalid wagon type provided.'\
+            "Allowed types: #{TYPES.join(', ')}."
+    end
   end
 end

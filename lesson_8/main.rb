@@ -50,7 +50,6 @@ class RailWayControlPanel
 
   private
 
-  # следующие методы не очень полезны вне контекста класса
   def stop
     raise RailwayTerminateError, 'Good bue!'
   end
@@ -168,14 +167,14 @@ class RailWayControlPanel
   end
 
   def reserve_seat
-    passenger_wagons = @wagons.select { |wagon| wagon.is_of_type?(:passenger) }
+    passenger_wagons = @wagons.select { |wagon| wagon.of_type?(:passenger) }
     wagon = prompt_select_wagon('Select wagon', passenger_wagons)
     wagon.reserve_seat
     'Success.'
   end
 
   def reserve_volume
-    cargo_wagons = @wagons.select { |wagon| wagon.is_of_type?(:cargo) }
+    cargo_wagons = @wagons.select { |wagon| wagon.of_type?(:cargo) }
     wagon = prompt_select_wagon('Select wagon', cargo_wagons)
     puts 'Enter volume amount: '
     volume = gets.to_f
@@ -187,21 +186,26 @@ class RailWayControlPanel
     train = prompt_select_train('Select train: ')
     wagon = prompt_select_wagon('Select wagon: ')
     train.hook_wagon(wagon)
-    "The wagon has been hooked to the train. Number of wagons: #{train.wagons_number}"
+    'The wagon has been hooked to the train. '\
+    "Number of wagons: #{train.wagons_number}"
   end
 
   def unhook_wagon
     train = prompt_select_train('Select train: ')
-    raise RailwayNotInitializedError, 'Selected train does not have any wagon yet.' if train..wagons.size.zero?
+    if train.wagons_number.zero?
+      raise RailwayNotInitializedError,
+            'Selected train does not have any wagon yet.'
+    end
 
-    puts 'Select wagon to be unhooked: '
-    train.wagons.each_index { |index| puts "#{index}: wagon number #{index + 1}" }
-    wagon_index = gets.to_i
-    wagon = train.wagons[wagon_index]
-    raise RailwayWrongInputError, 'You have selected non existent wagon.' unless wagon
+    wagon = prompt_select_wagon(
+      'Select wagon to be unhooked: ', train.wagons
+    )
+    raise RailwayWrongInputError,
+          'You have selected non existent wagon.' unless wagon
 
     train.unhook_wagon(wagon)
-    "The wagon has been unhooked from the train. Number of wagons: #{train.wagons_number}"
+    'The wagon has been unhooked from the train. '\
+    "Number of wagons: #{train.wagons_number}"
   end
 
   def create_route
@@ -213,7 +217,7 @@ class RailWayControlPanel
     "A new route '#{route.to_str}' has been created"
   end
 
-  def add_station_to_route
+  def add_route_station
     route = prompt_select_route('Select route: ')
     station = prompt_select_station('Select station to be added: ')
 
@@ -221,15 +225,18 @@ class RailWayControlPanel
     "Route has been modified #{route.to_str}"
   end
 
-  def remove_station_from_route
+  def remove_route_station
     route = prompt_select_route('Select route: ')
-    station_to_delete = prompt_select_station('Select station to delete: ', route.stations[1..-2])
+    station_to_delete = prompt_select_station(
+      'Select station to delete: ',
+      route.stations[1..-2]
+    )
 
     route.remove_station(station_to_delete)
     "Route has been modified #{route.to_str}"
   end
 
-  def assign_route_to_train
+  def set_train_route
     train = prompt_select_train('Select train: ')
     route = prompt_select_route('Select route: ')
 
@@ -254,7 +261,7 @@ class RailWayControlPanel
     'Success'
   end
 
-  def print_trains_on_station(station = nil)
+  def print_station_train(station = nil)
     station = prompt_select_station('Select station: ') if station.nil?
     station.each_train do |train|
       puts "Train: #{train.to_str}"
@@ -266,70 +273,84 @@ class RailWayControlPanel
   def print_stations_trains
     @stations.each do |station|
       puts "Station #{station.to_str}"
-      print_trains_on_station(station)
+      print_station_train(station)
     end
     'Success'
   end
 
-  # это внутрееные методы, которые не должны быть доступны во внешнем интерфейсе
   def prompt_select_train(message, trains = @trains)
-    raise RailwayNotInitializedError, 'You have not created any trains yet.' if trains.size.zero?
+    raise RailwayNotInitializedError,
+          'You have not created any trains yet.' if trains.size.zero?
 
     puts message
     trains.each_with_index { |train, index| puts "#{index}: #{train.to_str}" }
     train_index = gets.to_i
     train = trains[train_index]
 
-    raise RailwayWrongInputError, 'You have selected non existent train.' unless train
+    raise RailwayWrongInputError,
+          'You have selected non existent train.' unless train
 
     train
   end
 
   def prompt_select_wagon(message, wagons = @wagons)
-    raise RailwayNotInitializedError, 'You have not created any wagons yet.' if wagons.size.zero?
+    raise RailwayNotInitializedError,
+          'You have not created any wagons yet.' if wagons.size.zero?
 
     puts message
     wagons.each_with_index { |wagon, index| puts "#{index}: #{wagon.to_str}" }
     wagon_index = gets.to_i
     wagon = wagons[wagon_index]
 
-    raise RailwayWrongInputError, 'You have selected non existent wagon.' unless wagon
+    raise RailwayWrongInputError,
+          'You have selected non existent wagon.' unless wagon
 
     wagon
   end
 
   def prompt_select_station(message, stations = @stations)
-    raise RailwayNotInitializedError, 'You have not created any stations yet.' if stations.size.zero?
+    raise RailwayNotInitializedError,
+          'You have not created any stations yet.' if stations.size.zero?
 
     puts message
-    stations.each_with_index { |station, index| puts "#{index}: #{station.to_str}" }
+    stations.each_with_index do |station, index|
+      puts "#{index}: #{station.to_str}"
+    end
     station_index = gets.to_i
     station = stations[station_index]
 
-    raise RailwayWrongInputError, 'You have selected non existent station.' unless station
+    raise RailwayWrongInputError,
+          'You have selected non existent station.' unless station
 
     station
   end
 
   def prompt_select_route(message, routes = @routes)
-    raise RailwayNotInitializedError, 'You have not created any routes yet.' if routes.size.zero?
+    raise RailwayNotInitializedError,
+          'You have not created any routes yet.' if routes.size.zero?
 
     puts message
     routes.each_with_index { |route, index| puts "#{index}: #{route.to_str}" }
     route_index = gets.to_i
     route = routes[route_index]
 
-    raise RailwayWrongInputError, 'You have selected non existent route.' unless route
+    raise RailwayWrongInputError,
+          'You have selected non existent route.' unless route
 
     route
   end
 
   def prompt_select_action(_message, commands = @commands)
-    commands.each_with_index { |action, index| puts "#{index}: #{action[:title]}" }
-    command_index = gets.to_i
-    raise RailwayWrongInputError, 'You have selected non existing action.' unless @commands[command_index]
+    commands.each_with_index do |action, index|
+      puts "#{index}: #{action[:title]}"
+    end
 
-    @commands[command_index]
+    command_index = gets.to_i
+    command = @commands[command_index]
+    raise RailwayWrongInputError,
+          'You have selected non existing action.' unless command
+
+    command
   end
 
   def prompt_select_train_type(message, types = TRAIN_TYPES)
@@ -337,38 +358,39 @@ class RailWayControlPanel
     types.each_with_index { |type, index| puts "#{index} - #{type}" }
     type_index = gets.to_i
     type = types[type_index]
-    raise RailwayWrongInputError, 'You have selected non existing type.' unless type
+    raise RailwayWrongInputError,
+          'You have selected non existing type.' unless type
 
     type
   end
 
   def init_commands
     @commands = [
-      { title: 'Exit', handler: method(:stop) },
-      { title: 'Fill demo data', handler: method(:seed) },
-      { title: 'Create station', handler: method(:create_station) },
-      { title: 'Create route', handler: method(:create_route) },
-      { title: 'Add station to route', handler: method(:add_station_to_route) },
-      { title: 'Remove station from route', handler: method(:remove_station_from_route) },
-      { title: 'Assign route to train', handler: method(:assign_route_to_train) },
-      { title: 'Create train', handler: method(:create_train) },
-      { title: 'Hook wagon', handler: method(:hook_wagon) },
-      { title: 'Unhook wagon', handler: method(:unhook_wagon) },
-      { title: 'Create wagon', handler: method(:create_wagon) },
-      { title: 'Reserve seat', handler: method(:reserve_seat) },
-      { title: 'Reserve volume', handler: method(:reserve_volume) },
-      { title: 'Move train forward', handler: method(:move_train_forward) },
-      { title: 'Move train back', handler: method(:move_train_back) },
-      { title: 'Print stations list', handler: method(:print_stations_list) },
-      { title: 'Print trains on station', handler: method(:print_trains_on_station) },
+      { title: 'Exit',                  handler: method(:stop) },
+      { title: 'Fill demo data',        handler: method(:seed) },
+      { title: 'Create station',        handler: method(:create_station) },
+      { title: 'Create route',          handler: method(:create_route) },
+      { title: 'Add station to route',  handler: method(:add_route_station) },
+      { title: 'Remove route station',  handler: method(:remove_route_station) },
+      { title: 'Assign route to train', handler: method(:set_train_route) },
+      { title: 'Create train',          handler: method(:create_train) },
+      { title: 'Hook wagon',            handler: method(:hook_wagon) },
+      { title: 'Unhook wagon',          handler: method(:unhook_wagon) },
+      { title: 'Create wagon',          handler: method(:create_wagon) },
+      { title: 'Reserve seat',          handler: method(:reserve_seat) },
+      { title: 'Reserve volume',        handler: method(:reserve_volume) },
+      { title: 'Move train forward',    handler: method(:move_train_forward) },
+      { title: 'Move train back',       handler: method(:move_train_back) },
+      { title: 'Print stations list',   handler: method(:print_stations_list) },
+      { title: 'Print station trains',  handler: method(:print_station_train) },
       { title: 'Print stations trains', handler: method(:print_stations_trains) }
     ]
   end
 
-  def reserve_seats(n, wagon)
-    while n > 0
+  def reserve_seats(num_of_seats, wagon)
+    while num_of_seats > 0
       wagon.reserve_seat
-      n -= 1
+      num_of_seats -= 1
     end
     wagon
   end

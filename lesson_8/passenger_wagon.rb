@@ -16,14 +16,14 @@ class PassengerWagon < Wagon
   end
 
   def to_str
-    "Passenger wagon. Seats: #{@seats}, reserved: #{@reserved_seats}, free: #{free_seats}."
+    "Passenger wagon. Seats: #{@seats}, "\
+    "reserved: #{@reserved_seats}, free: #{free_seats}."
   end
 
   protected
 
   def validate
+    super
     raise 'Number of seats must be greater than zero.' if @seats.zero?
-
-    super()
   end
 end

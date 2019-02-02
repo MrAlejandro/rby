@@ -1,12 +1,12 @@
 class Train
-  attr_reader :wagons, :current_station, :number
-  attr_accessor :speed
-
   include Manufacturer
   include InstanceCounter
 
   TYPES = %i[cargo passenger].freeze
   NUMBER_FORMAT = /^[\w\d]{3}-?[\w\d]{2}$/.freeze
+
+  attr_reader :wagons, :current_station, :number
+  attr_accessor :speed
 
   @@trains = {}
 
@@ -36,7 +36,7 @@ class Train
     @speed = 0
   end
 
-  def is_of_type?(type)
+  def of_type?(type)
     @type == type
   end
 
@@ -45,12 +45,14 @@ class Train
   end
 
   def hook_wagon(wagon)
-    can_hook = @speed == 0 && @wagons.none? { |wg| wg == wagon } && wagon.is_a?(Wagon) && wagon.is_of_type?(@type)
+    not_hooked_yet = @wagons.none? { |wg| wg == wagon }
+    of_correct_type = wagon.is_a?(Wagon) && wagon.of_type?(@type)
+    can_hook = @speed.zero? && !not_hooked_yet && of_correct_type
     @wagons << wagon if can_hook
   end
 
   def unhook_wagon(wagon)
-    @wagons.delete(wagon) if @speed == 0
+    @wagons.delete(wagon) if @speed.zero?
   end
 
   def route=(route)
@@ -60,20 +62,20 @@ class Train
   end
 
   def go_forward
-    next_station = get_next_station
+    next_station = self.next_station
     go_to_station(next_station) if next_station
   end
 
   def go_back
-    prev_station = get_prev_station
+    prev_station = self.prev_station
     go_to_station(prev_station) if prev_station
   end
 
-  def get_next_station
+  def next_station
     @route.get_station_after(@current_station)
   end
 
-  def get_prev_station
+  def prev_station
     @route.get_station_before(@current_station)
   end
 
@@ -91,8 +93,6 @@ class Train
 
   private
 
-  # это низкоуровневый метод, который знает некоторые делаи реализации
-  # которые не должен быть доступет вызывающему коду
   def go_to_station(station)
     @current_station.handle_departure(self)
     station.handle_arrival(self)
@@ -100,8 +100,17 @@ class Train
   end
 
   def validate
-    raise 'Invalid train number. Desired format xxx[-]xx (where x is any letter or number)' if @number !~ NUMBER_FORMAT
-    raise "Invalid train type provided. Allowed types: #{TYPES.join(', ')}." unless TYPES.include?(@type)
     raise 'Speed cannot be negative.' if @speed.negative?
+
+    invalid_number = @number !~ NUMBER_FORMAT
+    if invalid_number
+      raise 'Invalid train number. Desired format xxx[-]xx '\
+            '(where x is any letter or number)'
+    end
+
+    unless TYPES.include?(@type)
+      raise 'Invalid train type provided. '\
+            "Allowed types: #{TYPES.join(', ')}."
+    end
   end
 end
