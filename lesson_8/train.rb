@@ -47,7 +47,7 @@ class Train
   def hook_wagon(wagon)
     not_hooked_yet = @wagons.none? { |wg| wg == wagon }
     of_correct_type = wagon.is_a?(Wagon) && wagon.of_type?(@type)
-    can_hook = @speed.zero? && !not_hooked_yet && of_correct_type
+    can_hook = @speed.zero? && not_hooked_yet && of_correct_type
     @wagons << wagon if can_hook
   end
 
