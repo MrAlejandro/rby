@@ -24,9 +24,6 @@ class Wagon
   protected
 
   def validate
-    unless TYPES.include?(@type)
-      raise 'Invalid wagon type provided.'\
-            "Allowed types: #{TYPES.join(', ')}."
-    end
+    raise "Invalid wagon type provided.Allowed types: #{TYPES.join(', ')}." unless TYPES.include?(@type)
   end
 end

@@ -99,8 +99,7 @@ class Train
     raise 'Speed cannot be negative.' if @speed.negative?
 
     unless TYPES.include?(@type)
-      raise 'Invalid train type provided. '\
-            "Allowed types: #{TYPES.join(', ')}."
+      raise "Invalid train type provided. Allowed types: #{TYPES.join(', ')}."
     end
   end
 end

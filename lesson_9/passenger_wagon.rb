@@ -16,8 +16,7 @@ class PassengerWagon < Wagon
   end
 
   def to_str
-    "Passenger wagon. Seats: #{@seats}, "\
-    "reserved: #{@reserved_seats}, free: #{free_seats}."
+    "Passenger wagon. Seats: #{@seats}, reserved: #{@reserved_seats}, free: #{free_seats}."
   end
 
   protected

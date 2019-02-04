@@ -185,26 +185,20 @@ class RailWayControlPanel
     train = prompt_select_train('Select train: ')
     wagon = prompt_select_wagon('Select wagon: ')
     train.hook_wagon(wagon)
-    'The wagon has been hooked to the train. '\
-    "Number of wagons: #{train.wagons_number}"
+    "The wagon has been hooked to the train. Number of wagons: #{train.wagons_number}"
   end
 
   def unhook_wagon
     train = prompt_select_train('Select train: ')
     if train.wagons_number.zero?
-      raise RailwayNotInitializedError,
-            'Selected train does not have any wagon yet.'
+      raise RailwayNotInitializedError, 'Selected train does not have any wagon yet.'
     end
 
-    wagon = prompt_select_wagon(
-      'Select wagon to be unhooked: ', train.wagons
-    )
-    raise RailwayWrongInputError,
-          'You have selected non existent wagon.' unless wagon
+    wagon = prompt_select_wagon('Select wagon to be unhooked: ', train.wagons)
+    raise RailwayWrongInputError, 'You have selected non existent wagon.' unless wagon
 
     train.unhook_wagon(wagon)
-    'The wagon has been unhooked from the train. '\
-    "Number of wagons: #{train.wagons_number}"
+    "The wagon has been unhooked from the train. Number of wagons: #{train.wagons_number}"
   end
 
   def create_route
@@ -278,38 +272,33 @@ class RailWayControlPanel
   end
 
   def prompt_select_train(message, trains = @trains)
-    raise RailwayNotInitializedError,
-          'You have not created any trains yet.' if trains.size.zero?
+    raise RailwayNotInitializedError, 'You have not created any trains yet.' if trains.size.zero?
 
     puts message
     trains.each_with_index { |train, index| puts "#{index}: #{train.to_str}" }
     train_index = gets.to_i
     train = trains[train_index]
 
-    raise RailwayWrongInputError,
-          'You have selected non existent train.' unless train
+    raise RailwayWrongInputError, 'You have selected non existent train.' unless train
 
     train
   end
 
   def prompt_select_wagon(message, wagons = @wagons)
-    raise RailwayNotInitializedError,
-          'You have not created any wagons yet.' if wagons.size.zero?
+    raise RailwayNotInitializedError, 'You have not created any wagons yet.' if wagons.size.zero?
 
     puts message
     wagons.each_with_index { |wagon, index| puts "#{index}: #{wagon.to_str}" }
     wagon_index = gets.to_i
     wagon = wagons[wagon_index]
 
-    raise RailwayWrongInputError,
-          'You have selected non existent wagon.' unless wagon
+    raise RailwayWrongInputError, 'You have selected non existent wagon.' unless wagon
 
     wagon
   end
 
   def prompt_select_station(message, stations = @stations)
-    raise RailwayNotInitializedError,
-          'You have not created any stations yet.' if stations.size.zero?
+    raise RailwayNotInitializedError, 'You have not created any stations yet.' if stations.size.zero?
 
     puts message
     stations.each_with_index do |station, index|
@@ -325,16 +314,14 @@ class RailWayControlPanel
   end
 
   def prompt_select_route(message, routes = @routes)
-    raise RailwayNotInitializedError,
-          'You have not created any routes yet.' if routes.size.zero?
+    raise RailwayNotInitializedError, 'You have not created any routes yet.' if routes.size.zero?
 
     puts message
     routes.each_with_index { |route, index| puts "#{index}: #{route.to_str}" }
     route_index = gets.to_i
     route = routes[route_index]
 
-    raise RailwayWrongInputError,
-          'You have selected non existent route.' unless route
+    raise RailwayWrongInputError, 'You have selected non existent route.' unless route
 
     route
   end
@@ -347,8 +334,7 @@ class RailWayControlPanel
 
     command_index = gets.to_i
     command = @commands[command_index]
-    raise RailwayWrongInputError,
-          'You have selected non existing action.' unless command
+    raise RailwayWrongInputError, 'You have selected non existing action.' unless command
 
     command
   end
@@ -358,8 +344,7 @@ class RailWayControlPanel
     types.each_with_index { |type, index| puts "#{index} - #{type}" }
     type_index = gets.to_i
     type = types[type_index]
-    raise RailwayWrongInputError,
-          'You have selected non existing type.' unless type
+    raise RailwayWrongInputError, 'You have selected non existing type.' unless type
 
     type
   end

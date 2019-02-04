@@ -18,8 +18,7 @@ class CargoWagon < Wagon
   end
 
   def to_str
-    "Cargo wagon. Volume: #{@volume}, "\
-    "reserved: #{@reserved_volume.round(2)}, free: #{free_volume.round(2)}."
+    "Cargo wagon. Volume: #{@volume}, reserved: #{@reserved_volume.round(2)}, free: #{free_volume.round(2)}."
   end
 
   protected
